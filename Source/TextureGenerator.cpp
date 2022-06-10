@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "CurveImporter.h"
+#include "TextureGenerator.h"
 #include "ImageUtils.h"
 #include "Misc/FileHelper.h"
 #include "Misc/FeedbackContext.h"
@@ -8,18 +8,16 @@
 #include "XmlFile.h"
 #include "Math/UnrealMathUtility.h"
 
-
-
-UCurveImporter::UCurveImporter()
+UTextureGenerator::UTextureGenerator()
 {
 	bEditorImport = true;	
 	//bCreateNew = true;
 	SupportedClass = UTexture2D::StaticClass();	
-	Formats.Add(FString("foo;Formato foo"));
+	Formats.Add(FString("foo;Xml data for a texture generator"));
 }
 
 
-UObject* UCurveImporter::FactoryCreateFile(UClass* InClass,
+UObject* UTextureGenerator::FactoryCreateFile(UClass* InClass,
 	UObject* InParent,
 	FName InName,
 	EObjectFlags Flags,
@@ -49,10 +47,8 @@ UObject* UCurveImporter::FactoryCreateFile(UClass* InClass,
 		for (FXmlNode* Layer : Layers)
 		{		
 			FString Type = Layer->GetAttribute(TEXT("type"));
-			UE_LOG(LogTemp, Error, TEXT("Node here!"));
 			if (Type.Equals(TEXT("PerlinNoise")))
 			{
-				UE_LOG(LogTemp, Error, TEXT("perlin found!"));
 				PerlinNoise PerlinNoiseData;
 				TArray<FXmlNode*> Values = Layer->GetChildrenNodes();
 
@@ -92,8 +88,6 @@ UObject* UCurveImporter::FactoryCreateFile(UClass* InClass,
 				}
 
 				PopulatePixelLayer(PerlinNoiseData, TextureSize, Pixels);
-
-				UE_LOG(LogTemp, Error, TEXT("PerlinNose pixel %i"), Pixels[0].A);
 			}
 		}
 	}
@@ -108,7 +102,7 @@ UObject* UCurveImporter::FactoryCreateFile(UClass* InClass,
 	return FImageUtils::CreateTexture2D(TextureSize, TextureSize, Pixels,InParent, InName.ToString(), Flags, Param);
 }
 
-void UCurveImporter::PopulatePixelLayer(const PerlinNoise InNoiseData, const int32 InTextureSize, TArray<FColor> &InPixels)
+void UTextureGenerator::PopulatePixelLayer(const PerlinNoise InNoiseData, const int32 InTextureSize, TArray<FColor> &InPixels)
 {
 	for (size_t Index = 0; Index < InPixels.Num(); Index++)
 	{
@@ -123,46 +117,3 @@ void UCurveImporter::PopulatePixelLayer(const PerlinNoise InNoiseData, const int
 		InPixels[Index].A = InNoiseData.Color[3];
 	}
 }
-
-//UObject* UCurveImporter::FactoryCreateFile(UClass* InClass,
-//	UObject* InParent,
-//	FName InName,
-//	EObjectFlags Flags,
-//	const FString& Filename,
-//	const TCHAR* Params,
-//	FFeedbackContext* Warn,
-//	bool& bOutOperationCanceled)
-//{
-//	FString Question = TEXT("Ecco la prova");
-//	//Warn->YesNof(FText::FromString(Question));
-//	TArray<FString> Lines;
-//	FFileHelper::LoadFileToStringArray(Lines, *Filename);
-//
-//	float Time = 0.0f;
-//	int Index = 0;
-//	UCurveFloat* Curve = NewObject<UCurveFloat>(InParent, InName, Flags);
-//	for (const FString& Line : Lines)
-//	{
-//		TArray<FString> TimeValue;
-//		Line.ParseIntoArray(TimeValue, TEXT(" "));
-//		if (TimeValue.Num() == 2)
-//		{
-//			Time = FCString::Atof(*TimeValue[0]);			
-//			float NewKey = FCString::Atof(*TimeValue[1]);
-//			if (NewKey == 0.0f)
-//			{
-//				if (Warn->YesNof(FText::FromString(Question)))
-//				{
-//					bOutOperationCanceled = true;
-//					return nullptr;
-//				}
-//			}
-//
-//			Curve->FloatCurve.AddKey(Time, NewKey);			
-//			Index++;
-//			Warn->StatusForceUpdate(Index, Lines.Num(), FText::FromString(FString("Updating")));
-//		}		
-//	}
-//
-//	return Curve;
-//}

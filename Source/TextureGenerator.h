@@ -21,12 +21,12 @@ struct PerlinNoise
  * 
  */
 UCLASS()
-class SECONDPROJECT_API UCurveImporter : public UFactory
+class SECONDPROJECT_API UTextureGenerator : public UFactory
 {
 	GENERATED_BODY()
 
 public:
-	UCurveImporter();
+	UTextureGenerator();
 
 	UObject* FactoryCreateFile
 	(
